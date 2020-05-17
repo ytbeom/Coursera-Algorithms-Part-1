@@ -1,0 +1,21 @@
+See the Assessment Guide for information on how to interpret this report.
+
+Want to receive personalized feedback on this submission?
+You can pay to have a teaching assistant read and provide
+personalized feedback on your submission at https://mooc.codepost.io.
+
+ASSESSMENT SUMMARY
+
+Compilation:  PASSED
+API:          PASSED
+
+Spotbugs:     PASSED
+PMD:          PASSED
+Checkstyle:   FAILED (0 errors, 3 warnings)
+
+Correctness:  32/33 tests passed
+Memory:       8/8 tests passed
+Timing:       20/20 tests passed
+
+Aggregate score: 98.18%
+[Compilation: 5%, API: 5%, Spotbugs: 0%, PMD: 0%, Checkstyle: 0%, Correctness: 60%, Memory: 10%, Timing: 20%]
