@@ -40,14 +40,14 @@ public class Percolation {
     public void open(int row, int col) {
         if (!checkIndex(row, col))
             throw new IllegalArgumentException();
-        if (!isOpen(row, col) && !isFull(row, col)) {
+        if (!isOpen(row, col)) {
             grid[row - 1][col - 1] = true;
             openSitesNum++;
             if (row == 1) {
                 uf.union(col - 1, top);
                 uf2.union(col - 1, top);
             }
-            else if (row == length) {
+            if (row == length) {
                 uf.union(length * (row - 1) + col - 1, bottom);
             }
 
