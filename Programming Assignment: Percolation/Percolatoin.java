@@ -1,101 +1,71 @@
 /* *****************************************************************************
  *  Name: Taekbeom Yoo
  *  Date: 2020.05.18
- *  Description: Percolatoin.java
+ *  Description: PercolatoinStats.java
  **************************************************************************** */
 
-import edu.princeton.cs.algs4.WeightedQuickUnionUF;
+import edu.princeton.cs.algs4.StdOut;
+import edu.princeton.cs.algs4.StdRandom;
+import edu.princeton.cs.algs4.StdStats;
 
-public class Percolation {
-    private static final int DIR_NUM = 4;
-    // false: closed, true: opened;
-    private boolean[][] grid;
-    private int openSitesNum;
-    private final int top;
-    private final int bottom;
-    private final WeightedQuickUnionUF uf;
-    private final WeightedQuickUnionUF uf2;
-    private final int length;
-    private final int[] dx;
-    private final int[] dy;
+public class PercolationStats {
+    private static final double CONFIDENCE_95 = 1.96;
+    private final int trials;
+    private final double mean;
+    private final double stddev;
 
-    // creates n-by-n grid, with all sites initially blocked
-    public Percolation(int n) {
-        if (n < 1)
+    // perform independent trials on an n-by-n grid
+    public PercolationStats(int n, int trials) {
+        if (n < 1 || trials < 1)
             throw new IllegalArgumentException();
+        this.trials = trials;
+        double[] results = new double[trials];
 
-        grid = new boolean[n][n];
-
-        openSitesNum = 0;
-        top = n * n;
-        bottom = n * n + 1;
-        uf = new WeightedQuickUnionUF(n * n + 2);
-        uf2 = new WeightedQuickUnionUF((n * n + 1));
-        length = n;
-        dx = new int[] { 0, 0, -1, 1 };
-        dy = new int[] { -1, 1, 0, 0 };
-    }
-
-    // opens the site (row, col) if it is not open already
-    public void open(int row, int col) {
-        if (!checkIndex(row, col))
-            throw new IllegalArgumentException();
-        if (!isOpen(row, col)) {
-            grid[row - 1][col - 1] = true;
-            openSitesNum++;
-            if (row == 1) {
-                uf.union(col - 1, top);
-                uf2.union(col - 1, top);
+        for (int i = 0; i < trials; i++) {
+            Percolation p = new Percolation(n);
+            while (!p.percolates()) {
+                int row = 0;
+                int col = 0;
+                do {
+                    row = StdRandom.uniform(1, n + 1);
+                    col = StdRandom.uniform(1, n + 1);
+                } while (p.isOpen(row, col));
+                p.open(row, col);
             }
-            if (row == length) {
-                uf.union(length * (row - 1) + col - 1, bottom);
-            }
-
-            for (int i = 0; i < DIR_NUM; i++) {
-                if (checkIndex(row + dy[i], col + dx[i]) && isOpen(row + dy[i], col + dx[i])) {
-                    uf.union(length * (row - 1) + col - 1,
-                             length * (row + dy[i] - 1) + col + dx[i] - 1);
-                    uf2.union(length * (row - 1) + col - 1,
-                              length * (row + dy[i] - 1) + col + dx[i] - 1);
-                }
-            }
+            results[i] = (double) p.numberOfOpenSites() / (n * n);
         }
+        this.mean = StdStats.mean(results);
+        this.stddev = StdStats.stddev(results);
     }
 
-    // is the site (row, col) open?
-    public boolean isOpen(int row, int col) {
-        if (!checkIndex(row, col))
-            throw new IllegalArgumentException();
-        return grid[row - 1][col - 1];
+    // sample mean of percolation threshold
+    public double mean() {
+        return mean;
     }
 
-    // is the site (row, col) full?
-    public boolean isFull(int row, int col) {
-        if (!checkIndex(row, col))
-            throw new IllegalArgumentException();
-        return uf2.find(length * (row - 1) + col - 1) == uf2.find(top);
+    // sample standard deviation of percolation threshold
+    public double stddev() {
+        return stddev;
     }
 
-    // returns the number of open sites
-    public int numberOfOpenSites() {
-        return openSitesNum;
+    // low endpoint of 95% confidence interval
+    public double confidenceLo() {
+        return this.mean - CONFIDENCE_95 * this.stddev / Math.sqrt(trials);
     }
 
-    // does the system percolate?
-    public boolean percolates() {
-        return uf.find(top) == uf.find(bottom);
+    // high endpoint of 95% confidence interval
+    public double confidenceHi() {
+        return this.mean + CONFIDENCE_95 * this.stddev / Math.sqrt(trials);
     }
 
-    // test client (optional)
+    // test client (see below)
     public static void main(String[] args) {
-        // test client
-    }
-
-    private boolean checkIndex(int row, int col) {
-        if (row < 1 || row > length)
-            return false;
-        if (col < 1 || col > length)
-            return false;
-        return true;
+        int n = Integer.parseInt(args[0]);
+        int trials = Integer.parseInt(args[1]);
+        PercolationStats ps = new PercolationStats(n, trials);
+        StdOut.println("mean                     = " + ps.mean());
+        StdOut.println("stddev                   = " + ps.stddev());
+        StdOut.println("95 % confidence interval = [" + ps.confidenceLo() + ", " + ps.confidenceHi()
+                               + "]");
     }
 }
