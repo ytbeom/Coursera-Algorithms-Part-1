@@ -1,1 +1,17 @@
+See the Assessment Guide for information on how to interpret this report.
 
+ASSESSMENT SUMMARY
+
+Compilation:  PASSED
+API:          PASSED
+
+SpotBugs:     PASSED
+PMD:          PASSED
+Checkstyle:   PASSED
+
+Correctness:  51/51 tests passed
+Memory:       22/22 tests passed
+Timing:       100/125 tests passed
+
+Aggregate score: 96.00%
+[Compilation: 5%, API: 5%, SpotBugs: 0%, PMD: 0%, Checkstyle: 0%, Correctness: 60%, Memory: 10%, Timing: 20%]
